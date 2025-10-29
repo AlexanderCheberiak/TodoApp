@@ -1,0 +1,77 @@
+@page "/todo"
+@inject IJSRuntime JS
+
+<h3>📝 ToDo List</h3>
+
+<div class="todo-app">
+    <input type="text" @bind="newTask" @bind:event="oninput" placeholder="Нова задача..." />
+    <button @onclick="AddTask">Додати</button>
+
+    <ul>
+        @foreach (var task in tasks)
+        {
+            <li class="@GetClass(task)">
+                <!-- Заміна @bind + @onchange (який спричиняв помилку) на checked + @onclick -->
+                <input type="checkbox" checked="@task.Done" @onclick="() => ToggleTaskDone(task)" />
+                <span>@task.Text</span>
+                <button @onclick="() => RemoveTask(task)">🗑️</button>
+            </li>
+        }
+    </ul>
+</div>
+
+@code {
+    private string newTask = "";
+    private List<TaskItem> tasks = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var json = await JS.InvokeAsync<string>("localStorage.getItem", "todo-list");
+        if (!string.IsNullOrEmpty(json))
+        {
+            try
+            {
+                tasks = System.Text.Json.JsonSerializer.Deserialize<List<TaskItem>>(json) ?? new();
+            }
+            catch
+            {
+                tasks = new();
+            }
+        }
+    }
+
+    private async Task AddTask()
+    {
+        if (string.IsNullOrWhiteSpace(newTask)) return;
+        tasks.Insert(0, new TaskItem { Text = newTask });
+        newTask = "";
+        await SaveTasks();
+    }
+
+    private async Task RemoveTask(TaskItem t)
+    {
+        tasks.Remove(t);
+        await SaveTasks();
+    }
+
+    private async Task ToggleTaskDone(TaskItem t)
+    {
+        t.Done = !t.Done;
+        await SaveTasks();
+    }
+
+    private async Task SaveTasks()
+    {
+        var json = System.Text.Json.JsonSerializer.Serialize(tasks);
+        await JS.InvokeVoidAsync("localStorage.setItem", "todo-list", json);
+        StateHasChanged();
+    }
+
+    private string GetClass(TaskItem t) => t.Done ? "done" : "";
+
+    public class TaskItem
+    {
+        public string Text { get; set; } = "";
+        public bool Done { get; set; }
+    }
+}
