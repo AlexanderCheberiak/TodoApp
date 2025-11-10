@@ -75,4 +75,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     renderTasks();
+
+    new Sortable(taskList, {
+        animation: 150, 
+        ghostClass: 'task-ghost', 
+
+        onEnd: () => {
+            
+            const updatedTasks = [];
+            
+            taskList.querySelectorAll('li span').forEach(span => {
+                updatedTasks.push(span.textContent);
+            });
+
+            tasks = updatedTasks;
+            
+            saveTasks();
+            renderTasks();
+        }
+    });
 });

@@ -79,3 +79,8 @@ h1 {
 #taskList li .delete-btn:hover {
     background: #c82333;
 }
+
+.task-ghost {
+    opacity: 0.4;
+    background: #cce5ff; 
+}
