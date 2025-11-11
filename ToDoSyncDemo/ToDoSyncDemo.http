@@ -1,0 +1,6 @@
+@ToDoSyncDemo_HostAddress = http://localhost:5272
+
+GET {{ToDoSyncDemo_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

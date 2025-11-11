@@ -2,48 +2,37 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic ToDo List</title>
+    <title>Sync ToDo List</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div class="todo-container">
-        <h1>Мій Список Завдань</h1>
+        <h1>Мій Список</h1>
+        
+        <div class="mode-selector">
+            <label for="syncMode">Режим синхронізації:</label>
+            <select id="syncMode">
+                <option value="none">Вимкнено</option>
+                <option value="poll">Frequent Poll</option>
+                <option value="longpoll">Long Poll</option>
+                <option value="websocket">Web Sockets (SignalR)</option>
+            </select>
+        </div>
+
         <div class="input-section">
-            <input type="text" id="taskInput" placeholder="Введіть нове завдання...">
+            <input type="text" id="taskInput" placeholder="Нове завдання...">
             <button id="addButton">Додати</button>
         </div>
-        <ul id="taskList">
-            </ul>
+        <ul id="taskList"></ul>
+        
+        <div class="analysis-box">
+            <h3>Аналіз:</h3>
+            <pre id="logOutput">Тут будуть логи...</pre>
+        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-<script>
-  const firebaseConfig = {
-
-    apiKey: "AIzaSyA0zfYAugk1Lsjab02Ty9z5KragY5bQk_o",
-
-    authDomain: "todoapp-4a673.firebaseapp.com",
-
-    projectId: "todoapp-4a673",
-
-    storageBucket: "todoapp-4a673.firebasestorage.app",
-
-    messagingSenderId: "1065391148459",
-
-    appId: "1:1065391148459:web:42bbf2b72dd7c7a94d96ee",
-    databaseURL: "https://todoapp-4a673-default-rtdb.europe-west1.firebasedatabase.app/"
-
-  };
-
-  
-  firebase.initializeApp(firebaseConfig);
-  const database = firebase.database();
-</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+    
     <script src="script.js"></script>
 </body>
 </html>
