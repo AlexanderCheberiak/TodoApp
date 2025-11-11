@@ -1,28 +1,26 @@
 document.addEventListener('DOMContentLoaded', () => {
-
     const taskInput = document.getElementById('taskInput');
     const addButton = document.getElementById('addButton');
     const taskList = document.getElementById('taskList');
 
-    const STORAGE_KEY = 'todoTasks';
+    const tasksRef = database.ref('tasks');
 
-    function loadTasks() {
-        const savedTasks = localStorage.getItem(STORAGE_KEY);
-        return savedTasks ? JSON.parse(savedTasks) : [];
+    let tasks = [];
+
+    tasksRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        tasks = data ? data : [];
+        renderTasks();
+    });
+
+    function saveTasksToFirebase() {
+        tasksRef.set(tasks);
     }
-
-    function saveTasks() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-    }
-
-    let tasks = loadTasks();
 
     function renderTasks() {
         taskList.innerHTML = '';
-
         tasks.forEach((taskText, index) => {
             const li = document.createElement('li');
-            
             const taskSpan = document.createElement('span');
             taskSpan.textContent = taskText;
             
@@ -41,18 +39,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function addTask() {
-        const taskText = taskInput.value.trim(); 
-
-        if (taskText === '') {
-            alert('Будь ласка, введіть завдання.');
-            return; 
-        }
+        const taskText = taskInput.value.trim();
+        if (taskText === '') return;
 
         tasks.push(taskText);
+        saveTasksToFirebase(); 
         
-        saveTasks();
-        
-        renderTasks();
         
         taskInput.value = '';
         taskInput.focus();
@@ -60,38 +52,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function deleteTask(index) {
         tasks.splice(index, 1);
+        saveTasksToFirebase(); 
         
-        saveTasks();
-        
-        renderTasks();
     }
 
     addButton.addEventListener('click', addTask);
-    
     taskInput.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter') {
-            addTask();
-        }
+        if (event.key === 'Enter') addTask();
     });
 
-    renderTasks();
-
     new Sortable(taskList, {
-        animation: 150, 
-        ghostClass: 'task-ghost', 
+        animation: 150,
+        ghostClass: 'task-ghost',
+        
+        onEnd: (evt) => {
+            const [movedItem] = tasks.splice(evt.oldIndex, 1);
+            tasks.splice(evt.newIndex, 0, movedItem);
 
-        onEnd: () => {
-            
-            const updatedTasks = [];
-            
-            taskList.querySelectorAll('li span').forEach(span => {
-                updatedTasks.push(span.textContent);
-            });
-
-            tasks = updatedTasks;
-            
-            saveTasks();
-            renderTasks();
+            saveTasksToFirebase();
         }
     });
 });
